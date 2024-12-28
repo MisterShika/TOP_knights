@@ -46,6 +46,7 @@ class Knight{
     getRoot(){
         return this.root;
     }
+    
 
     getX(){
         return this.x;
@@ -178,16 +179,17 @@ class Knight{
         }
     }
 
-    printPath(node){
+    printPath(node, counter = 0){
         if(node.getParent() == null){
+            console.log(`[X: ${node.getX()}, Y: ${node.getY()}] with ${counter} number of jumps.`);
             return;
         }
         console.log(`[X: ${node.getX()}, Y: ${node.getY()}]`);
-        this.printPath(node.getParent());
+        this.printPath(node.getParent(), counter + 1);
     }
 
     findPath(x, y){
-        console.log(`Finding path to ${x}, ${y}`);
+        console.log(`Finding path to ${x},${y} from ${this.getRoot().getX()},${this.getRoot().getY()}`);
         this.setDestination(x, y);
         this.pathingFunction(0);
         this.printPath(this.getFinal());
