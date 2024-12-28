@@ -1,8 +1,9 @@
 class Node{
-    constructor(x, y){
+    constructor(x, y, parent){
         this.x = x;
         this.y = y;
         this.children = [];
+        this.parent = parent;
     }
 
     getX(){
@@ -19,6 +20,10 @@ class Node{
 
     addChild(node){
         this.children.push(node);
+    }
+
+    getParent(){
+        return this.parent;
     }
 }
 
@@ -60,13 +65,28 @@ class Knight{
     }
 
     addVisited(node){
-        this.visited.push([node.getX(), node.getY()]);
+        this.visited.push(node);
     }
 
     checkVisited(nodeX, nodeY){
         let visited = this.getVisited();
-        for(const [x, y] of visited){
-            if (nodeX === x && nodeY === y){
+        for(const node of visited){
+            if (nodeX === node.getX() && nodeY === node.getY()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getDestination(){
+        return this.destination;
+    }
+
+    destinationExists(){
+        let destination = this.getDestination();
+        let visited = this.getVisited();
+        for(const node of visited){
+            if(node.getX() === destination.getX() && node.getY() === destination.getY()){
                 return true;
             }
         }
@@ -83,11 +103,7 @@ class Knight{
 
     moveNode(x, y, currentNode){
         if(this.inBounds(x, y) == true && this.checkVisited(x, y) == false){
-            if(x == this.destination.getX() && y == this.destination.getY()){
-                console.log("FOUND");
-                //Display path
-            }
-            let moveNode = new Node(x, y);
+            let moveNode = new Node(x, y, currentNode);
             currentNode.addChild(moveNode);
             this.addVisited(moveNode);
         }
@@ -152,14 +168,49 @@ class Knight{
         this.moveLeftDown(node);
     }
 
-    findPath(x, y){
-        this.setDestination(x, y);
-        this.moveAll(this.getRoot());
+    getFinal(){
+        let destination = this.getDestination();
+        let visited = this.getVisited();
+        for(const node of visited){
+            if(node.getX() === destination.getX() && node.getY() === destination.getY()){
+                return node;
+            }
+        }
     }
+
+    printPath(node){
+        if(node.getParent() == null){
+            return;
+        }
+        console.log(`[X: ${node.getX()}, Y: ${node.getY()}]`);
+        this.printPath(node.getParent());
+    }
+
+    findPath(x, y){
+        console.log(`Finding path to ${x}, ${y}`);
+        this.setDestination(x, y);
+        this.pathingFunction(0);
+        this.printPath(this.getFinal());
+    }
+
+    pathingFunction(start){
+        let newArray = this.getVisited();
+        let currentLength = newArray.length;
+        newArray = newArray.slice(start);
+        for(let space of newArray){
+            this.moveAll(space);
+        }
+        if(this.destinationExists() == true){
+            return;
+        }
+        this.pathingFunction(currentLength);
+    }
+
+
 }
 
 const knightTest = new Knight(1,1);
-knightTest.findPath(3, 2);
+knightTest.findPath(7, 7);
 //console.log(knightTest.checkVisited(2, 8));
-console.log(knightTest.getRoot());
-console.log(knightTest.getVisited());
+//console.log(knightTest.getRoot());
+// console.log(knightTest.getVisited());
